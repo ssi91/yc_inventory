@@ -4,6 +4,7 @@ import os
 
 import yaml
 import yandexcloud
+from yaml import Loader
 from yandex.cloud.compute.v1.instance_service_pb2 import ListInstancesRequest
 from yandex.cloud.compute.v1.instance_service_pb2_grpc import InstanceServiceStub
 
@@ -95,7 +96,7 @@ class Config:
     def __init__(self):
         self._finder_instance = self._FINDER()
         self.__stream = self._finder_instance.stream()
-        self.__parsed_config = yaml.load(self.__stream)
+        self.__parsed_config = yaml.load(self.__stream, Loader=Loader)
 
         self._service_account = None
 
@@ -157,7 +158,7 @@ def generate_inventory(conf):
         if var_hosts.find('[') != -1 and var_hosts.find(']') == len(var_hosts) - 1:
             tag_name, index = var_hosts.split('[')
             index = int(index[:-1])
-            if len(tag_hosts_map[tag_name]) >= index:
+            if len(tag_hosts_map[tag_name]) <= index:
                 # FIXME: it seems like an error in the config
                 return []
             return tag_hosts_map[tag_name][index]
